@@ -5,6 +5,7 @@ import { SEO } from '../components/SEO';
 import { agents } from '../data/agents';
 import { AgentCard } from '../components/AgentCard';
 import { FeaturedSlider } from '../components/FeaturedSlider';
+import { BundlesSection } from '../components/BundlesSection';
 import { Logo } from '../components/Logo';
 import { AgentModal } from '../components/AgentModal';
 import { Product } from '../types';
@@ -14,19 +15,25 @@ const CATEGORIES = ['All', 'Strategy', 'Content', 'Growth', 'Tech', 'Specialized
 export const Marketplace: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [sortBy, setSortBy] = useState('default');
   const [claimedCount, setClaimedCount] = useState(82);
   
   // Modal State
   const [selectedAgent, setSelectedAgent] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Filter Logic
+  // Filter & Sort Logic
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           agent.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeCategory === 'All' || agent.category === activeCategory;
     
     return matchesSearch && matchesCategory;
+  }).sort((a, b) => {
+    if (sortBy === 'rating') {
+      return (b.rating || 0) - (a.rating || 0);
+    }
+    return 0;
   });
 
   // Fake Live Counter Logic
@@ -92,6 +99,9 @@ export const Marketplace: React.FC = () => {
             {/* Featured Slider - The "Creative & Baya3" Part */}
             <FeaturedSlider />
 
+            {/* Bundles Section */}
+            <BundlesSection />
+
             {/* Controls */}
             <div className="sticky top-32 z-20 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-sm py-4 mb-8 border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
                 <div className="flex flex-col md:flex-row gap-6 justify-between items-center">
@@ -113,16 +123,35 @@ export const Marketplace: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* Search */}
-                    <div className="relative w-full md:w-72">
-                        <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input 
-                            type="text" 
-                            placeholder="ابحث عن تخصص (مثلاً: SEO, Copywriter)"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full py-3 pr-12 pl-4 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors shadow-sm"
-                        />
+                    {/* Search & Sort */}
+                    <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                        {/* Sort Dropdown */}
+                        <div className="relative w-full md:w-48">
+                            <FiTrendingUp className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                className="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full py-3 pr-12 pl-10 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors shadow-sm cursor-pointer"
+                            >
+                                <option value="default">الافتراضي</option>
+                                <option value="rating">الأعلى تقييماً</option>
+                            </select>
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative w-full md:w-72">
+                            <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input 
+                                type="text" 
+                                placeholder="ابحث عن تخصص..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full py-3 pr-12 pl-4 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors shadow-sm"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
